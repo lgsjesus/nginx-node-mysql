@@ -10,14 +10,7 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
     tty: true
     depends_on:
-      app:
-        condition: service_healthy
-    healthcheck:
-          test: "curl -f http://localhost:80/ || exit 1"
-          interval: 10s
-          timeout: 60s
-          retries: 3
-          start_period: 20s
+      - app    
 
   app:
     build:      
@@ -26,24 +19,12 @@ services:
     container_name: app
     volumes:
       - ./node:/app       
+      - /app/node_modules
     networks:
       - appnet
     depends_on:
       db:
-        condition: service_healthy    
-    #command: bash -c "npm install && node index.js"
-    command:
-      - /bin/bash
-      - -c
-      - |
-        npm install
-        node index.js     
-    healthcheck:
-          test: "curl -f http://localhost:3000/ || exit 1"
-          interval: 10s
-          timeout: 30s
-          retries: 3
-          start_period: 30s
+        condition: service_healthy   
 
   db:
     image: mysql:5.7
